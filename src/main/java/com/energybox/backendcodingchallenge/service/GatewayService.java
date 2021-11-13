@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.energybox.backendcodingchallenge.domain.Gateway;
 import com.energybox.backendcodingchallenge.domain.Sensor;
 import com.energybox.backendcodingchallenge.repository.GatewayRepository;
+import com.energybox.backendcodingchallenge.repository.ReadingRepository;
 import com.energybox.backendcodingchallenge.repository.SensorRepository;
 
 import org.springframework.stereotype.Service;
@@ -15,13 +16,12 @@ public class GatewayService {
 
   public final SensorRepository sensorRepo;
   public final GatewayRepository gatewayRepo;
-  // public final ReadingRepository readingRepo;
+  public final ReadingRepository readingRepo;
 
-  public GatewayService(SensorRepository sensorRepo, GatewayRepository gatewayRepo) {
-  // public GatewayService(SensorRepository sensorRepo, GatewayRepository gatewayRepo, ReadingRepository readingRepo) {
+  public GatewayService(SensorRepository sensorRepo, GatewayRepository gatewayRepo, ReadingRepository readingRepo) {
     this.sensorRepo = sensorRepo;
     this.gatewayRepo = gatewayRepo;
-    // this.readingRepo = readingRepo;
+    this.readingRepo = readingRepo;
   }
 
   public Sensor addSensor(Sensor sensor) {

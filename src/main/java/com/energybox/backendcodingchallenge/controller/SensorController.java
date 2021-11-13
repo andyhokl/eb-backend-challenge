@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import com.energybox.backendcodingchallenge.domain.Reading;
 import com.energybox.backendcodingchallenge.domain.Sensor;
 import com.energybox.backendcodingchallenge.service.GatewayService;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,14 +66,12 @@ public class SensorController {
     public ResponseEntity<List<Sensor>> getGatewayById(
         @PathVariable Sensor.SensorType type
     ) throws IOException, InterruptedException {
-
-        // String typeString = type.toString();
         
         return new ResponseEntity<>( service.sensorRepo.findAllByType(type), HttpStatus.OK );
     }
 
     @ApiOperation( value = "create a sensor", response = Sensor.class)
-    @RequestMapping( value = "", method = RequestMethod.POST )
+    @RequestMapping( value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE )
     public ResponseEntity<Sensor> addSensor(
         @RequestBody Sensor sensor
     ) throws IOException, InterruptedException {
@@ -98,89 +98,75 @@ public class SensorController {
             if (success) {
                 return new ResponseEntity<>( HttpStatus.OK );
             } else {
-                return new ResponseEntity<>( HttpStatus.NOT_FOUND );
+                return new ResponseEntity<>( HttpStatus.BAD_REQUEST );
             }
         } else {
             return new ResponseEntity<>( HttpStatus.NOT_FOUND );
         }
     }
 
-    // @ApiOperation( value = "update reading of certain type", response = Reading.class)
-    // @RequestMapping( value = "/{sensorId}/reading/{sensorType}", method = RequestMethod.POST )
-    // public ResponseEntity<Reading> addSensor(
-    //     @PathVariable Long sensorId, @PathVariable Sensor.SensorType sensorType, @RequestBody Double value
-    // ) throws IOException, InterruptedException {
+    @ApiOperation( value = "update reading of certain type", response = Reading.class)
+    @RequestMapping( value = "/{sensorId}/readings/{sensorType}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE )
+    public ResponseEntity<Reading> addSensor(
+        @PathVariable Long sensorId, @PathVariable Sensor.SensorType sensorType, @RequestBody Double value
+    ) throws IOException, InterruptedException {
 
-    //     String sensorIdString = Long.toString(sensorId) + "_" + sensorType;
-    //     Optional<Reading> readingNode = service.readingRepo.findById(sensorIdString);
-    //     if (readingNode.isPresent()) {
-    //         Reading reading = readingNode.get();
-    //         reading.setValue(value);
-    //         service.readingRepo.save(reading);
-    //         return new ResponseEntity<>( reading, HttpStatus.OK );
-    //     } else {
-    //         Reading reading = new Reading(sensorId, sensorType, value);
-    //         Optional<Sensor> sensorNode = service.sensorRepo.findById(sensorId);
-    //         if (sensorNode.isPresent()) {
-    //             Sensor sensor = sensorNode.get();
-    //             Boolean updateSuccess = sensor.updateReading(reading);
-    //             if (updateSuccess) {
-    //                 reading.setSensor(sensor);
-    //                 service.sensorRepo.save(sensor);
-    //                 service.readingRepo.save(reading);
-    //                 return new ResponseEntity<>( reading, HttpStatus.OK );
-    //             } else {
-    //                 return new ResponseEntity<>( HttpStatus.NOT_FOUND );
-    //             }
-    //         } else {
-    //             return new ResponseEntity<>( HttpStatus.NOT_FOUND );
-    //         }
+        String readingId = Long.toString(sensorId) + "_" + sensorType;
+        Optional<Reading> readingNode = service.readingRepo.findById(readingId);
+        if (readingNode.isPresent()) {
+            Reading reading = readingNode.get();
+            reading.setValue(value);
+            service.readingRepo.save(reading);
+            return new ResponseEntity<>( reading, HttpStatus.OK );
+        } else {
+            Reading reading = new Reading(sensorId, sensorType, value);
+            Optional<Sensor> sensorNode = service.sensorRepo.findById(sensorId);
+            if (sensorNode.isPresent()) {
+                Sensor sensor = sensorNode.get();
+                Boolean updateSuccess = sensor.updateReading(reading);
+                if (updateSuccess) {
+                    service.sensorRepo.save(sensor);
+                    service.readingRepo.save(reading);
+                    return new ResponseEntity<>( reading, HttpStatus.OK );
+                } else {
+                    return new ResponseEntity<>( HttpStatus.BAD_REQUEST );
+                }
+            } else {
+                return new ResponseEntity<>( HttpStatus.NOT_FOUND );
+            }
 
-    //     }
+        }
+    }
 
-    //     // Optional<Sensor> sensorNode = service.sensorRepo.findById(sensorId);
-    //     // if (sensorNode.isPresent()) {
-    //     //     Reading reading = service.readingRepo.findBySensorType(sensorId, sensorType);
-    //     //     if (reading != null) {
-    //     //         reading.setValue(value);
-    //     //         service.readingRepo.save(reading);
-    //     //         return new ResponseEntity<>( reading, HttpStatus.OK );
-    //     //     } else {
-    //     //         Reading newReading = service.addReading(sensorNode.get(), sensorType, value);
-    //     //         return new ResponseEntity<>( newReading, HttpStatus.OK );
-    //     //     }
-    //     // } else {
-    //     //     return new ResponseEntity<>( HttpStatus.NOT_FOUND );
-    //     // }
-    // }
+    @ApiOperation( value = "get reading of certain type", response = Reading.class)
+    @RequestMapping( value = "/{sensorId}/readings/{sensorType}", method = RequestMethod.GET )
+    public ResponseEntity<Reading> readSensor(
+        @PathVariable Long sensorId, @PathVariable Sensor.SensorType sensorType
+    ) throws IOException, InterruptedException {
 
-    // @ApiOperation( value = "get reading of certain type", response = Sensor.class)
-    // @RequestMapping( value = "/{sensorId}/reading/{sensorType}", method = RequestMethod.GET )
-    // public ResponseEntity<Reading> readSensor(
-    //     @PathVariable Long sensorId, @PathVariable Sensor.SensorType sensorType
-    // ) throws IOException, InterruptedException {
+        String readingId = Long.toString(sensorId) + "_" + sensorType;
 
-    //     Optional<Sensor> sensorNode = service.sensorRepo.findById(sensorId);
-    //     if (sensorNode.isPresent()) {
-    //         Sensor sensor = sensorNode.get();
-    //         return new ResponseEntity<>( sensor.getReading(sensorType), HttpStatus.OK );
-    //     } else {
-    //         return new ResponseEntity<>( HttpStatus.NOT_FOUND );
-    //     }
-    // }
+        Optional<Reading> readingNode = service.readingRepo.findById(readingId);
+        if (readingNode.isPresent()) {
+            Reading reading = readingNode.get();
+            return new ResponseEntity<>( reading, HttpStatus.OK );
+        } else {
+            return new ResponseEntity<>( HttpStatus.NOT_FOUND );
+        }
+    }
 
-    // @ApiOperation( value = "retrieva all readings of a sensor", response = Reading.class)
-    // @RequestMapping( value = "/{id}/readings", method = RequestMethod.GET )
-    // public ResponseEntity<List<Reading>> listReadings(
-    //     @PathVariable Long id
-    // ) throws IOException, InterruptedException {
-    //     Optional<Sensor> sensorNode = service.sensorRepo.findById(id);
-    //     if (sensorNode.isPresent()) {
-    //         Sensor sensor = sensorNode.get();
-    //         return new ResponseEntity<>( sensor.getAllReadings(), HttpStatus.OK );
-    //     } else {
-    //         return new ResponseEntity<>( HttpStatus.NOT_FOUND );
-    //     }
-    // }
+    @ApiOperation( value = "retrieva all readings of a sensor", response = Reading.class)
+    @RequestMapping( value = "/{id}/readings", method = RequestMethod.GET )
+    public ResponseEntity<List<Reading>> listReadings(
+        @PathVariable Long id
+    ) throws IOException, InterruptedException {
+        Optional<Sensor> sensorNode = service.sensorRepo.findById(id);
+        if (sensorNode.isPresent()) {
+            // Sensor sensor = sensorNode.get();
+            return new ResponseEntity<>( service.readingRepo.findAllBySensorId(id), HttpStatus.OK );
+        } else {
+            return new ResponseEntity<>( HttpStatus.NOT_FOUND );
+        }
+    }
 
 }

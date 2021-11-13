@@ -1,5 +1,6 @@
 package com.energybox.backendcodingchallenge.domain;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Sensor {
   public HashSet<Sensor.SensorType> types;
   public String description;
 
-  // private HashMap<SensorType, Reading> last_readings = new HashMap<>();
+  private HashMap<SensorType, Reading> last_readings = new HashMap<>();
 
   public Sensor(List<Sensor.SensorType> types, String description) {
     this.types = new HashSet<Sensor.SensorType>(types);
@@ -45,20 +46,12 @@ public class Sensor {
     return gateway;
   }
 
-  // public Boolean updateReading(Reading reading) {
-  //   if (!this.types.contains(reading.type)) {
-  //     return false;
-  //   }
-  //   this.last_readings.put(reading.type, reading);
-  //   return true;
-  // } 
-
-  // public Reading getReading(SensorType type) {
-  //   return this.last_readings.get(type);
-  // }
-
-  // public List<Reading> getAllReadings() {
-  //   return this.types.stream().map(type -> getReading(type)).collect(Collectors.toList());
-  // }
+  public Boolean updateReading(Reading reading) {
+    if (!this.types.contains(reading.getType())) {
+      return false;
+    }
+    this.last_readings.put(reading.getType(), reading);
+    return true;
+  } 
 
 }

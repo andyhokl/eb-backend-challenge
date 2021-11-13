@@ -12,6 +12,4 @@ public interface GatewayRepository extends Neo4jRepository<Gateway, Long> {
 
   @Query ("match (s:Sensor)-[c:CONNECTED_TO]-(g:Gateway) where $0 in s.types return g")
   List<Gateway> findBySensorType(Sensor.SensorType type);
-  // List<Person> findByTeammatesName(String name);
-  // List<Person> findByTeammatesName(String name);
 }
